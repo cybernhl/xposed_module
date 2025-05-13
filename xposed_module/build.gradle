@@ -1,6 +1,9 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
+group = "idv.neo.utils.xposed.module"
+version = "1.0-SNAPSHOT"
+
 android {
     namespace 'idv.neo.utils.xposed.module'
     compileSdk 35
