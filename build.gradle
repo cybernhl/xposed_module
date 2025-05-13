@@ -1,0 +1,43 @@
+buildscript {
+    ext {
+        agp_version = libs.versions.agp.version.get()
+        kotlin_version = libs.versions.kotlin.version.get()
+        jetbrains_compose_version=libs.versions.jetbrains.compose.version.get()
+    }
+    repositories {
+        gradlePluginPortal()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        mavenCentral()
+        google()
+        maven {
+            url = uri('https://maven.pkg.jetbrains.space/public/p/compose/dev')
+        }
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:$agp_version"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+        classpath "com.gradleup.shadow:shadow-gradle-plugin:9.0.0-beta11"
+    }
+}
+
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "${kotlin_version}" apply false
+    alias(libs.plugins.jetbrains.kotlin.android) apply false
+    alias(libs.plugins.jetbrains.kotlin.multiplatform) apply false
+    id("org.jetbrains.compose") version "${jetbrains_compose_version}" apply false
+    alias(libs.plugins.jetbrains.compose.compiler) apply false
+    alias(libs.plugins.jetbrains.kotlin.serialization) apply false
+    alias(libs.plugins.buildConfig).apply(false)
+    alias(libs.plugins.buildkonfig).apply(false)
+}
+allprojects {
+    afterEvaluate {
+    }
+}
+
+subprojects {
+    afterEvaluate {
+    }
+}

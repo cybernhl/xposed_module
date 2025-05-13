@@ -1,0 +1,103 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        mavenCentral()
+        maven { url 'https://maven.pkg.jetbrains.space/public/p/compose/dev' }
+        maven { url 'https://api.xposed.info/' }
+        maven { url "https://maven.aliyun.com/repository/jcenter" }
+        maven { url 'https://jitpack.io' }
+        maven { url 'https://www.dfki.uni-kl.de/artifactory/libs-releases/' }
+        maven { url 'https://s3.amazonaws.com/repo.commonsware.com' }
+        maven { url 'https://jogamp.org/deployment/maven' }
+        maven { url 'https://raw.githubusercontent.com/cybernhl/maven-repository/master/' }
+    }
+    plugins {
+
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        google()
+        maven { url 'https://maven.pkg.jetbrains.space/public/p/compose/dev' }
+        maven { url 'https://api.xposed.info/' }
+        maven { url "https://maven.aliyun.com/repository/jcenter" }
+        maven { url 'https://jitpack.io' }
+        maven { url 'https://www.dfki.uni-kl.de/artifactory/libs-releases/' }
+        maven { url 'https://s3.amazonaws.com/repo.commonsware.com' }
+        maven { url 'https://jogamp.org/deployment/maven' }
+        maven { url 'https://raw.githubusercontent.com/cybernhl/maven-repository/master/' }
+    }
+}
+
+gradle.projectsLoaded {
+    logger.error('Show me Here Start Configure All project !!!')
+    gradle.rootProject{proj ->
+        proj.tasks.register("initSecurityKeys") {
+            group = 'Build Setup'
+            description = 'Initialize security keys before any project evaluation'
+
+            // 声明必须最先执行
+//            mustRunAfter(proj.tasks.findByName('clean')) // 如果存在 clean 任务
+
+            doFirst {
+                logger.lifecycle("[Init] Starting security key initialization...")
+            }
+        }
+//        def initTask = proj.tasks.register("initSecurityKeys") {
+//            group = 'Build Setup'
+//            description = 'Security key initialization'
+//        }
+        proj.afterEvaluate {
+            logger.error('Show me Here rootProject.afterEvaluat !!!')
+            def cleanTask = proj.tasks.findByName('clean')
+            def rsaTask = rootProject.tasks.findByName('checkAndGenerateRsaKeys')
+            def initTask = tasks.findByName('initSecurityKeys')
+//            initTask.configure {
+//                if (cleanTask) {
+//                    mustRunAfter(cleanTask)
+//                    logger.lifecycle("Init task 将紧随 clean 执行")
+//                }
+//
+//                // 配置最终任务链
+//                if (rsaTask) {
+//                    finalizedBy(rsaTask)
+//                }
+//            }
+            ////            println "正在執行 RSA 金鑰檢查任務..."
+            logger.lifecycle('[Init] Starting RSA keys check....')
+            if (rsaTask && initTask) {
+                initTask.finalizedBy(rsaTask)
+                proj.subprojects { sub ->
+                    sub.afterEvaluate {
+                        it.tasks.configureEach { t ->
+                            if (t != initTask && t != rsaTask && t.name != 'checkAndGenerateRsaKeys') {
+                                t.dependsOn(initTask)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+rootProject.name = "xposed_module"
+
+//SDK
+include ":xposed_module"
+
+
+
+
+
